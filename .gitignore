@@ -36,6 +36,11 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# Models (large files, downloaded separately)
+models/
+*.gguf
+*.bin
+
 # generated native folders
 /ios
 /android
