@@ -44,3 +44,12 @@ models/
 # generated native folders
 /ios
 /android
+
+# Development documentation (keep local only)
+PROJECT_CONCEPTS_GUIDE.md
+PROJECT_CONCEPTS_COMPLETE_GUIDE.md
+BUILD_STATUS.md
+TESTING.md
+QUICKSTART.md
+NATIVE_BUILD_GUIDE.md
+

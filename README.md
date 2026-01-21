@@ -1,156 +1,195 @@
-# Offline-First SLM Mobile App
+# PocketLlama
 
-An AI-powered mobile chat app using **Small Language Models (SLMs)** that run completely offline on your device. Zero API costs, complete privacy.
+Privacy-first mobile AI chat application powered by TinyLlama, enabling completely offline inference on iOS and Android devices.
 
-## 🚀 Quick Start
+## Overview
 
-\`\`\`bash
+PocketLlama is a mobile application that runs Small Language Models (SLMs) directly on device, providing AI-powered chat capabilities without requiring internet connectivity or cloud services. Built with React Native and leveraging llama.cpp through the llama.rn library, it demonstrates efficient on-device inference with quantized models.
+
+**Key Features:**
+- Complete offline operation after initial model download
+- Zero API costs and complete data privacy
+- Optimized for mobile constraints (battery, memory, storage)
+- Support for 4-bit and 8-bit quantized models
+- Intelligent context window management
+- Battery-aware inference throttling
+
+## Technical Architecture
+
+**Core Technologies:**
+- **Runtime:** React Native with Expo
+- **Inference Engine:** llama.cpp via llama.rn bindings
+- **Model:** TinyLlama 1.1B (GGUF format)
+- **State Management:** Zustand
+- **Storage:** expo-sqlite (native), in-memory fallback (web)
+- **Language:** TypeScript
+
+**Platform Support:**
+- iOS (native inference)
+- Android (native inference)  
+- Web (UI testing only, mock responses)
+
+## Model Information
+
+The application uses TinyLlama 1.1B, a compact language model optimized for resource-constrained environments:
+
+| Variant | Size | Precision | Recommended RAM | Use Case |
+|---------|------|-----------|-----------------|----------|
+| Q4_K_M | 600MB | 4-bit | 2-4GB | Older devices, faster inference |
+| Q8_0 | 1.1GB | 8-bit | 6-8GB+ | Modern devices, better quality |
+
+Models are in GGUF format and downloaded on first launch. The application automatically selects the appropriate variant based on device capabilities.
+
+## Installation
+
+### Prerequisites
+
+- Node.js 18+ and npm
+- Expo CLI
+- For iOS development: macOS with Xcode
+- For Android development: Android Studio and SDK
+
+### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/ChiragArora31/PocketLlama.git
+cd PocketLlama
+
 # Install dependencies
 npm install
 
-# Start Expo development server
+# Start development server
 npm start
+```
 
-# Then choose your platform:
-# Press 'w' for web browser
-# Press 'i' for iOS simulator
-# Press 'a' for Android emulator
-# Or scan QR code with Expo Go app
-\`\`\`
+### Platform-Specific Commands
 
-## 📋 Project Status
+```bash
+# iOS (requires macOS and Xcode)
+npm run ios
 
-- ✅  **Phase 1: Project Setup & Research** - Complete
-- ✅ **Phase 2: Core Chat Interface** - Complete
-- ✅ **Phase 3: Model Management & Battery Optimization** - Complete
-- ✅ **Phase 4: Context Window Management** - Complete
-- ✅ **Phase 5: Offline-First Storage & Sync** - Complete
+# Android (requires Android Studio)
+npm run android
 
-**Status**: ~95% Complete - Ready for native testing!
+# Web (for UI testing only)
+npm run web
+```
 
-## 🎯 What's Working
+## Project Structure
 
-### ✅ Native Platforms (iOS/Android)
-- Real offline AI with TinyLlama model (after download)
+```
+PocketLlama/
+├── app/
+│   ├── (tabs)/              # Screen components
+│   ├── components/          # Reusable UI components
+│   ├── constants/           # Model configurations
+│   ├── services/            # Core business logic
+│   │   ├── InferenceEngine.ts
+│   │   ├── ModelManager.ts
+│   │   ├── ContextWindowManager.ts
+│   │   ├── BatteryOptimizationService.ts
+│   │   └── StorageService.ts
+│   ├── store/               # Global state management
+│   └── utils/               # Helper functions
+├── models/                  # Downloaded model files (gitignored)
+└── native/                  # Native module configurations
+```
+
+## Key Components
+
+### InferenceEngine
+Manages llama.cpp integration and inference execution. Handles:
+- Model initialization with llama.rn
+- Chat template formatting
+- Token generation with configurable parameters
+- Response post-processing
+
+### ModelManager
+Controls model lifecycle:
+- Device capability detection
 - Model download with progress tracking
-- llama.rn integration for on-device inference
-- All features work 100% offline once model is downloaded
+- Lazy loading and memory management
+- Automatic cleanup on memory pressure
 
-### ✅ Web Platform (Testing Only)
-- Modern chat interface (iOS-style bubbles)
-- Mock AI responses (real AI cannot run in browsers)
-- All UI components and navigation
-- Service initialization with fallbacks
+### ContextWindowManager
+Implements sliding window context management:
+- 2048 token limit enforcement
+- Message archival and retrieval
+- Semantic similarity search for relevant context
 
-### ✅ All Platforms
-- Device capability detection (RAM, quantization selection)
-- Memory monitoring utilities
-- State management with Zustand
-- Battery optimization (native only, fallback on web)
-- Context window management with semantic retrieval
-- Offline-first storage (SQLite on native, in-memory on web)
+### BatteryOptimizationService
+Battery-aware inference management:
+- Adaptive batching based on battery level
+- Inference throttling in low-power mode
+- Configurable processing delays
 
-## 🛠️ Tech Stack
+## Configuration
 
-- **Framework**: React Native with Expo
-- **Language**: TypeScript
-- **State Management**: Zustand
-- **File System**: expo-file-system
-- **Database**: expo-sqlite (Phase 4)
-- **Device APIs**: expo-device, expo-battery
+Model configurations are defined in `app/constants/models.ts`:
 
-## 📁 Project Structure
+```typescript
+{
+  id: 'tinyllama-1.1b-4bit',
+  name: 'TinyLlama 1.1B (4-bit)',
+  quantization: '4-bit',
+  contextWindow: 2048,
+  downloadUrl: 'https://huggingface.co/TheBloke/...',
+  minRAM: 2
+}
+```
 
-\`\`\`
-app/
-├── (tabs)/
-│   └── index.tsx          # Main chat screen
-├── components/
-│   └── ChatBubble.tsx     # Message component
-├── services/
-│   ├── ModelManager.ts    # Model lifecycle
-│   └── InferenceEngine.ts # AI inference (mock)
-├── store/
-│   └── appStore.ts        # Global state
-├── utils/
-│   ├── quantization.ts    # Device detection
-│   └── memoryMonitor.ts   # Memory pressure
-└── constants/
-    └── models.ts          # TinyLlama configs
-\`\`\`
+## Development
 
-## 🧪 Testing
+### Running Tests
 
-### Web (Recommended for Quick Testing)
-\`\`\`bash
-npx expo install react-dom react-native-web
-npm start
-# Press 'w'
-\`\`\`
+The application includes comprehensive testing for UI components and core services. Web platform can be used for rapid UI iteration.
 
-### iOS Simulator (Mac only)
-\`\`\`bash
-npm start
-# Press 'i'
-\`\`\`
+### Building for Production
 
-### Android Emulator
-\`\`\`bash
-npm start
-# Press 'a'
-\`\`\`
+```bash
+# iOS
+eas build --platform ios
 
-## 📝 Key Features (Implemented)
+# Android
+eas build --platform android
+```
 
-### 1. Device Capability Detection
-Automatically detects:
-- Device RAM (estimates based on year)
-- Recommended quantization (4-bit vs 8-bit)
-- Modern vs legacy device classification
+Refer to `eas.json` for build configuration.
 
-### 2. Mock Inference Engine
-Simulates TinyLlama responses with:
-- 1.5s delay (realistic inference time)
-- Proper async/await handling
-- Loading states
+## Technical Considerations
 
-### 3. Memory Monitoring
-Monitors memory pressure and:
-- Unloads models when usage >85%
-- Triggers callbacks on warnings
-- Prevents app crashes
+**Memory Management:**
+- Implements memory pressure monitoring
+- Automatic model unloading at 85% memory usage
+- Optimized for devices with 2-8GB RAM
 
-## 🚀 How to Use Real Offline AI
+**Battery Optimization:**
+- Dynamic inference batching
+- Low-power mode detection
+- Configurable throttling thresholds
 
-### On iOS/Android (Native):
-1. Run the app on a physical device or simulator
-2. On first launch, tap "Download" when prompted
-3. Wait for TinyLlama model to download (~600MB for 4-bit, ~1.1GB for 8-bit)
-4. Once downloaded, chat works 100% offline!
-5. No internet needed - ever!
+**Platform Differences:**
+- Native platforms: Full llama.cpp inference
+- Web platform: Mock responses for UI testing
 
-### On Web (Testing Only):
-- Web shows mock responses (browsers can't run llama.cpp)
-- Use for UI/UX testing only
-- Real AI requires native platforms
+## Contributing
 
-## 🧪 Testing
+Contributions are welcome. Please ensure:
+- Code follows TypeScript best practices
+- Changes maintain cross-platform compatibility
+- New features include appropriate error handling
 
-For detailed implementation and testing status, see [walkthrough.md](file:///Users/chiragarora/.gemini/antigravity/brain/39d04ec0-1e22-48e3-a446-faad3889ec65/walkthrough.md).
+## License
 
-## 🎓 Learning Objectives
+MIT License - See LICENSE file for details
 
-This project teaches:
-- Edge AI optimization for mobile devices
-- Model quantization (4-bit vs 8-bit)
-- Memory management on constrained devices
-- Offline-first architecture
-- Battery-aware computing
+## Acknowledgments
 
-## 📄 License
-
-MIT License - Free to use for learning and portfolio projects!
+- llama.cpp by Georgi Gerganov
+- TinyLlama model by TinyLlama team
+- llama.rn React Native bindings
 
 ---
 
-**Built with ❤️ using React Native and Expo**
+**Note:** This is an educational project demonstrating on-device AI inference on mobile platforms. Model capabilities are limited compared to cloud-based LLMs.
