@@ -38,7 +38,10 @@ class BatteryOptimizationService {
         reject: (reason: any) => void;
         timestamp: number;
     }> = [];
-    private batchInterval: NodeJS.Timeout | null = null;
+    private batchInterval: ReturnType<typeof setTimeout> | null = null;
+    private batteryLevelSubscription: { remove: () => void } | null = null;
+    private batteryStateSubscription: { remove: () => void } | null = null;
+    private lowPowerModeSubscription: { remove: () => void } | null = null;
 
     async initialize(): Promise<void> {
         if (Platform.OS === 'web' || !Battery) {
@@ -47,15 +50,17 @@ class BatteryOptimizationService {
 
         await this.updateBatteryStatus();
 
-        Battery.addBatteryLevelListener(({ batteryLevel }: any) => {
+        this.cleanupSubscriptions();
+
+        this.batteryLevelSubscription = Battery.addBatteryLevelListener(({ batteryLevel }: any) => {
             this.currentBatteryLevel = batteryLevel;
         });
 
-        Battery.addBatteryStateListener(({ batteryState }: any) => {
+        this.batteryStateSubscription = Battery.addBatteryStateListener(({ batteryState }: any) => {
             this.isCharging = batteryState === Battery.BatteryState.CHARGING || batteryState === Battery.BatteryState.FULL;
         });
 
-        Battery.addLowPowerModeListener(({ lowPowerMode }: any) => {
+        this.lowPowerModeSubscription = Battery.addLowPowerModeListener(({ lowPowerMode }: any) => {
             this.isLowPowerMode = lowPowerMode;
         });
     }
@@ -225,6 +230,16 @@ class BatteryOptimizationService {
             clearTimeout(this.batchInterval);
             this.batchInterval = null;
         }
+        this.cleanupSubscriptions();
+    }
+
+    private cleanupSubscriptions(): void {
+        this.batteryLevelSubscription?.remove();
+        this.batteryStateSubscription?.remove();
+        this.lowPowerModeSubscription?.remove();
+        this.batteryLevelSubscription = null;
+        this.batteryStateSubscription = null;
+        this.lowPowerModeSubscription = null;
     }
 }
 

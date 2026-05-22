@@ -37,11 +37,17 @@ export default function ChatScreen() {
         setCurrentModel,
         setDeviceCapabilities,
         setDownloadProgress,
+        setMessages,
     } = useAppStore();
 
     // Initialize device capabilities and model on mount
     useEffect(() => {
         initializeApp();
+
+        return () => {
+            batteryOptimizationService.cleanup();
+            storageService.cleanup();
+        };
     }, []);
 
     const initializeApp = async () => {
@@ -104,6 +110,8 @@ export default function ChatScreen() {
             const savedMessages = await storageService.loadMessages();
             if (savedMessages.length > 0) {
                 logger.log(`[ChatScreen] Loaded ${savedMessages.length} messages from storage`);
+                setMessages(savedMessages);
+                contextWindowManager.clear();
                 savedMessages.forEach(msg => {
                     contextWindowManager.addMessage(msg);
                 });
@@ -126,12 +134,7 @@ export default function ChatScreen() {
         };
 
         // Add user message to store and context manager
-        addMessage(userMsg);
-        const userMsgWithId = messages[messages.length] || {
-            ...userMsg,
-            id: Date.now().toString(),
-            timestamp: Date.now()
-        };
+        const userMsgWithId = addMessage(userMsg);
 
         // Generate embedding and add to context window
         const embedding = contextWindowManager.generateEmbedding(userMessage);
@@ -214,12 +217,7 @@ export default function ChatScreen() {
                 content: response,
             };
 
-            addMessage(assistantMsg);
-            const assistantMsgWithId = {
-                ...assistantMsg,
-                id: (Date.now() + 1).toString(),
-                timestamp: Date.now() + 1
-            };
+            const assistantMsgWithId = addMessage(assistantMsg);
 
             // Generate embedding and add to context window
             const responseEmbedding = contextWindowManager.generateEmbedding(response);

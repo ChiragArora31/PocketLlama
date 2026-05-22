@@ -1,20 +1,22 @@
 {
-  "name": "slm",
+  "name": "pocketllama",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "doctor": "npx expo-doctor"
   },
   "dependencies": {
-    "@react-native-community/netinfo": "^11.4.1",
-    "expo": "~54.0.31",
+    "@react-native-community/netinfo": "11.4.1",
+    "expo": "~54.0.34",
     "expo-battery": "^10.0.8",
-    "expo-dev-client": "~6.0.20",
+    "expo-dev-client": "~6.0.21",
     "expo-device": "^8.0.10",
-    "expo-file-system": "^19.0.21",
+    "expo-file-system": "~19.0.22",
     "expo-sqlite": "^16.0.10",
     "expo-status-bar": "~3.0.9",
     "llama.rn": "^0.10.0",
@@ -27,6 +29,10 @@
   "devDependencies": {
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
+  },
+  "overrides": {
+    "postcss": "^8.5.10",
+    "uuid": "^11.1.1"
   },
   "private": true
 }

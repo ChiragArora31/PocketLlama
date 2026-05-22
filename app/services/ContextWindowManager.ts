@@ -83,6 +83,10 @@ class ContextWindowManager {
             normB += b[i] * b[i];
         }
 
+        if (normA === 0 || normB === 0) {
+            return 0;
+        }
+
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
@@ -98,7 +102,9 @@ class ContextWindowManager {
         }
 
         // Filter messages that have embeddings
-        const messagesWithEmbeddings = this.archivedMessages.filter(m => m.embedding);
+        const messagesWithEmbeddings = this.archivedMessages.filter(
+            m => m.embedding && m.embedding.length === queryEmbedding.length
+        );
 
         if (messagesWithEmbeddings.length === 0) {
             return [];

@@ -27,6 +27,8 @@ const TOKENS = {
     EOT: '<|endoftext|>',
 };
 
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 let initLlama: any = null;
 if (Platform.OS !== 'web') {
     try {
@@ -440,8 +442,8 @@ class InferenceEngine {
 
         // Only remove stop sequences if they appear at the very end (not in the middle)
         // This preserves content that might legitimately contain these tokens
-        cleaned = cleaned.replace(new RegExp(`${TOKENS.END}\\s*$`, 'g'), '');
-        cleaned = cleaned.replace(new RegExp(`${TOKENS.EOT}\\s*$`, 'g'), '');
+        cleaned = cleaned.replace(new RegExp(`${escapeRegExp(TOKENS.END)}\\s*$`, 'g'), '');
+        cleaned = cleaned.replace(new RegExp(`${escapeRegExp(TOKENS.EOT)}\\s*$`, 'g'), '');
         
         // Remove assistant start token only if it's at the beginning (leftover from prompt)
         if (cleaned.startsWith(TOKENS.ASSISTANT_START)) {

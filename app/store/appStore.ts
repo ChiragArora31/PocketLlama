@@ -24,7 +24,8 @@ export interface AppState {
     recommendedQuantization: '4-bit' | '8-bit';
 
     // Actions
-    addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => void;
+    addMessage: (message: Omit<Message, 'id' | 'timestamp'>) => Message;
+    setMessages: (messages: Message[]) => void;
     setLoading: (isLoading: boolean) => void;
     setModelLoaded: (isLoaded: boolean) => void;
     setCurrentModel: (modelId: string) => void;
@@ -45,17 +46,24 @@ export const useAppStore = create<AppState>((set) => ({
     recommendedQuantization: '4-bit',
 
     // Actions
-    addMessage: (message) =>
+    addMessage: (message) => {
+        const savedMessage: Message = {
+            ...message,
+            id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            timestamp: Date.now(),
+        };
+
         set((state) => ({
             messages: [
                 ...state.messages,
-                {
-                    ...message,
-                    id: Date.now().toString() + Math.random(),
-                    timestamp: Date.now(),
-                },
+                savedMessage,
             ],
-        })),
+        }));
+
+        return savedMessage;
+    },
+
+    setMessages: (messages) => set({ messages }),
 
     setLoading: (isLoading) => set({ isLoading }),
 
@@ -64,7 +72,7 @@ export const useAppStore = create<AppState>((set) => ({
     setCurrentModel: (modelId) => set({ currentModelId: modelId }),
 
     setDownloadProgress: (progress) =>
-        set({ downloadProgress: progress, isDownloading: progress < 100 }),
+        set({ downloadProgress: progress, isDownloading: progress > 0 && progress < 100 }),
 
     setDeviceCapabilities: (ram, quantization) =>
         set({ deviceRAM: ram, recommendedQuantization: quantization }),

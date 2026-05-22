@@ -1,8 +1,9 @@
 {
   "expo": {
-    "name": "slm",
-    "slug": "slm",
+    "name": "PocketLlama",
+    "slug": "pocketllama",
     "version": "1.0.0",
+    "scheme": "pocketllama",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.slm",
+      "bundleIdentifier": "com.chiragarora.pocketllama",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -26,7 +27,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.slm"
+      "package": "com.chiragarora.pocketllama"
     },
     "web": {
       "favicon": "./assets/favicon.png"

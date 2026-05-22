@@ -36,6 +36,7 @@ class StorageService {
     private syncConfig: SyncConfig = { enabled: false };
     private isOnline: boolean = true;
     private pendingSync: Message[] = [];
+    private unsubscribeNetInfo: (() => void) | null = null;
 
     async initialize(): Promise<void> {
         if (Platform.OS === 'web' || !SQLite) {
@@ -97,8 +98,10 @@ class StorageService {
     private setupNetworkMonitoring(): void {
         if (!NetInfo) return;
 
-        NetInfo.addEventListener((state: any) => {
-            this.isOnline = state.isConnected && state.isInternetReachable;
+        this.unsubscribeNetInfo?.();
+
+        this.unsubscribeNetInfo = NetInfo.addEventListener((state: any) => {
+            this.isOnline = Boolean(state.isConnected) && state.isInternetReachable !== false;
             if (this.isOnline && this.syncConfig.enabled && this.pendingSync.length > 0) {
                 this.syncToCloud();
             }
@@ -261,6 +264,11 @@ class StorageService {
         } catch (error) {
             logger.error('[StorageService] Error clearing data:', error);
         }
+    }
+
+    cleanup(): void {
+        this.unsubscribeNetInfo?.();
+        this.unsubscribeNetInfo = null;
     }
 
     /**

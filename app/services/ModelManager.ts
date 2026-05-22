@@ -99,7 +99,10 @@ class ModelManager {
                 file.uri,
                 {},
                 (downloadProgress: any) => {
-                    const progress = (downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite) * 100;
+                    const expectedBytes = downloadProgress.totalBytesExpectedToWrite;
+                    const progress = expectedBytes > 0
+                        ? (downloadProgress.totalBytesWritten / expectedBytes) * 100
+                        : 0;
                     logger.log(`[ModelManager] Download progress: ${progress.toFixed(1)}%`);
                     if (onProgress) {
                         onProgress(progress);
